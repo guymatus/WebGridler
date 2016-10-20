@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -32,10 +33,14 @@ public class Utilities {
             usersList = new HashMap<>();
             context.setAttribute("usersList", usersList);
         }
-      
+
         return usersList;
     }
-
+    public static String getRowBlock(int index)
+    {
+        String res="5";
+        return res;
+    }
     public static void loadXml(String filePath) throws Exception {
         m_gameManager = new Engine();
 
@@ -50,9 +55,14 @@ public class Utilities {
 
         return gamesList;
     }
-    public static void addPlayerToGame()
-    {
-      System.out.println("HI");
-        
+
+    public static UserType getUserTypeByString(String userType) throws ServletException {
+        if ("human".equals(userType)) {
+            return UserType.Human;
+        } else if ("computer".equals(userType)) {
+            return UserType.Computer;
+        } else {
+            throw new ServletException("user type must be human or computer. user type given: " + userType);
+        }
     }
 }

@@ -8,12 +8,7 @@ package gridler.controllers;
 import Logic.Engine;
 import Logic.IGameManager;
 import gridler.Utilities.Utilities;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -35,9 +30,11 @@ public class LoadXmlController extends HttpServlet {
         Part filePart = request.getPart("file");
         IGameManager gameManager = new Engine();
         try {
-            String name =(String) request.getSession().getAttribute("username");
-            String type= (String) request.getSession().getAttribute("userType");
-            gameManager.loadXml(filePart.getInputStream(),name,type);
+            String name = (String) request.getSession().getAttribute("username");
+            String type = (String) request.getSession().getAttribute("userType");
+            gameManager.loadXml(filePart.getInputStream());
+            gameManager.setOrganizer(name);
+           
         } catch (Exception ex) {
             ex.printStackTrace(response.getWriter());
             return;

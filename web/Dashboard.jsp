@@ -26,10 +26,6 @@
         <script src="lib/bootstrap/js/bootstrap.js" type="text/javascript"></script>
         <script src="lib/bootstrap-filestyle-1.2.1/src/bootstrap-filestyle.min.js" type="text/javascript"></script>
 
-        <!-- lightbox -->
-        <link href="lib/lightbox/featherlight.min.css" rel="stylesheet" type="text/css"/>
-        <script src="lib/lightbox/featherlight.min.js" type="text/javascript"></script>
-
         <!-- jquery file upload -->
         <link href="css/jquery.fileupload.css" rel="stylesheet" type="text/css"/>
         <script>
@@ -37,6 +33,7 @@
             {
                 $.getJSON("StatusController",
                         function (data) {
+                            // users table update
                             $("#userstable").empty();
                             $.each(data.currentUsers, function (key, value) {
                                 if (value == "Computer") {
@@ -45,21 +42,22 @@
                                     $("<tr><td>" + key + "</td><td>" + '<img src="images/humanIcon.png" />' + "</td></tr>").appendTo($("#userstable"));
                                 }
                             });
+
+                            // games table update
                             $("#gamestable").empty();
                             $.each(data.runningGames, function (index, value) {
-                                $("<tr class='clickable-row'><td>" + value.m_gameTitle + "</td><td>" + value.m_organizer + "</td><td>" + value.m_activePlayers + "/"
+                                $("<tr class='clickable-row' data-id='" + index + "'><td>" + value.m_gameTitle + "</td><td>" + value.m_organizer + "</td><td>" + value.m_activePlayers + "/"
                                         + value.m_playerCount + "</td><td>"
                                         + value.m_numberOfRounds + "</td><td>" +
-                                        value.m_lstPlayers[0].m_board.rowLength + "x" + value.m_lstPlayers[0].m_board.colLength + "</td></tr>").appendTo($("#gamestable"));                            
+                                        value.boardCols + "x" + value.boardRows + "</td></tr>").appendTo($("#gamestable"));
                             });
-                          
+
                         });
             }
             function setupOfferNewGameButton()
             {
-                
-                $('body').on('change', '#offerNewGameButton', function () {
-                   
+
+                $("#offerNewGameButton").change(function () {
                     var file_data = $("#offerNewGameButton").prop('files')[0];
                     var form_data = new FormData();
                     form_data.append('file', file_data);
@@ -74,10 +72,11 @@
                         success: function (data) {
                             if (data === "success")
                             {
-                                  
+                                // lets not wait for refresh.
                                 updateStatus();
                             } else
                             {
+                                // show the exception
                                 alert(data);
                             }
                         }
@@ -88,20 +87,31 @@
             $(function () {
                 setInterval(updateStatus, 2000);
                 setupOfferNewGameButton();
-                 
-                           $('#gamestable').on('click', '.clickable-row', function (event) {
-                               
-               
-                                  //   window.location.href ='Game.jsp';
-                                       
-                                });
+
+ 
+        
+        $('#gamestable').on('click', '.clickable-row', function () {
+                    var gameID = $(this).data('id');
+                    
+                    var addPlayerToGameData = {
+                        gameIndex: gameID,
+                        playerName: '<%= request.getSession().getAttribute("username")%>'
+                    }
+                    $.post("AddPlayerToGameController", addPlayerToGameData, function (data) {
+                        if (data === "success") {
+                            window.location.href = "GameRoomController?id=" + gameID;
+                        } else {
+                            alert(data);
+                        }
+                    });
+                });
             });
 
         </script>
     </head>
     <body>
-            
-           
+
+
 
         <h1 class="text-success">Shchor & Ptor Dashboard</h1>
         <div class="col-lg-4">
@@ -138,8 +148,8 @@
         <div class="col-lg-8">
             <h2 class="text-primary">Available games:</h2>
 
-        <input type="file" id="offerNewGameButton" class="filestyle" data-buttonText="Offer New Game" data-buttonBefore="true" data-icon="false" data-buttonName="btn-primary"  data-input="false" data-badge="false" />           
-          
+            <input type="file" id="offerNewGameButton" class="filestyle" data-buttonText="Offer New Game" data-buttonBefore="true" data-icon="false" data-buttonName="btn-primary"  data-input="false" data-badge="false" />           
+
             <table class="table table-hover">
                 <thead> 
                     <tr>

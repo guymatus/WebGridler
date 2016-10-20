@@ -31,7 +31,10 @@ public class DashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Enumeration<String> requestType = request.getParameterNames();
+        if (request.getSession().getAttribute("username") == null) {
+            response.sendRedirect("Login.jsp");
+            return;
+        }
         getServletContext().getRequestDispatcher("/Dashboard.jsp").forward(request, response);
     }
 

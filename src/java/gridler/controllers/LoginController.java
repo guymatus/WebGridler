@@ -44,7 +44,7 @@ public class LoginController extends HttpServlet {
                 throw new ServletException("User already exist. must choose a different username");
             }
 
-            userList.put(userNameParam, getUserTypeByString(userType));
+            userList.put(userNameParam, Utilities.getUserTypeByString(userType));
 
             request.getSession().setAttribute("username", userNameParam);
             request.getSession().setAttribute("userType", userType);
@@ -64,15 +64,5 @@ public class LoginController extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Login controller";
-    }
-
-    private UserType getUserTypeByString(String userType) throws ServletException {
-        if ("human".equals(userType)) {
-            return UserType.Human;
-        } else if ("computer".equals(userType)) {
-            return UserType.Computer;
-        } else {
-            throw new ServletException("user type must be human or computer. user type given: " + userType);
-        }
     }
 }
