@@ -32,7 +32,7 @@ public interface IGameManager {
 
     int playersCount();
 
-    public void loadXml(InputStream stream,String name,String type) throws Exception;
+    public void loadXml(InputStream stream) throws Exception;
 
     int undoMove();
 
