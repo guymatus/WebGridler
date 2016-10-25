@@ -30,7 +30,7 @@ public class AddPlayerToGameController extends HttpServlet {
         UserType userType = Utilities.getUsersList(getServletContext()).get(playerName);
 
         IGameManager runningGame = Utilities.getRunningGamesList(getServletContext()).get(gameIndex);
-        Player player= new Player(playerName,userType.toString());
+        Player player = new Player(playerName, userType.toString());
         player.setBoard(runningGame.getBoard());
         runningGame.addPlayer(player);
 

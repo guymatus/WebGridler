@@ -31,16 +31,15 @@ public class GameRoomController extends HttpServlet {
 
         IGameManager currentGame = Utilities.getRunningGamesList(getServletContext()).get(Integer.parseInt(req.getParameter("id")));
         req.setAttribute("currentGame", currentGame);
-        Slice[] rowslices= currentGame.getBoard().getRowSlices();
-        Slice[] colslices= currentGame.getBoard().getColSlices();
+        Slice[] rowslices = currentGame.getBoard().getRowSlices();
+        Slice[] colslices = currentGame.getBoard().getColSlices();
         String rowBlocks = "";
-        String  colBlocks= "";
-        for(int i=0;i<currentGame.getBoardRows();i++)
-        {
-            rowBlocks+= rowslices[i].getBlock();        }
-        for(int i=0;i<currentGame.getBoardCols();i++)
-        {
-            colBlocks += colslices[i].getBlock();
+        String colBlocks = "";
+        for (int i = 0; i < currentGame.getBoardRows(); i++) {
+            rowBlocks += "[" + rowslices[i].getBlock() + "],";
+        }
+        for (int i = 0; i < currentGame.getBoardCols(); i++) {
+            colBlocks += "[" + colslices[i].getBlock() + "],";
         }
         req.setAttribute("rowBlocks", rowBlocks);
         req.setAttribute("colBlocks", colBlocks);

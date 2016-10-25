@@ -27,12 +27,11 @@
 
         <script>
 
+            // this is set to true, while executing a move.
+            var inAMove = false;
+
             function printBoard() {
-
-
                 var table = '';
-               // var rowBlocks= <%= request.getAttribute("rowBlocks")%>;
-               
                 var rows = <%=((IGameManager) request.getAttribute("currentGame")).getBoardRows()%>
                 var cols = <%=((IGameManager) request.getAttribute("currentGame")).getBoardCols()%>
 
@@ -43,45 +42,48 @@
                 }
                 table += "</tr></td>";
 
-                
+                // write row blocks
                 for (var r = 1; r <= rows; r++)
                 {
                     table += "<tr><td>" + r + "</td>";
                     for (var j = 0; j < cols; j++)
                     {
-                        
-                        table += ' <td><a class= "btn btn-default" style="width: 32px; height: 32px;"></a></td> '
+
+                        table += ' <td><a class= "btn btn-default" style="width: 32px; height: 32px;" data-col="' + j + '" data-row="' + (r - 1) + '"></a></td> '
                     }
-                     var rowBlocks = [<%=((String)request.getAttribute("rowBlocks"))%>];
-                    table += "<td>" + rowBlocks[r-1] +"</td></tr>";    
-                     
+                    var rowBlocks = [<%=((String) request.getAttribute("rowBlocks"))%>];
+                    table += "<td>" + rowBlocks[r - 1] + "</td></tr>";
                 }
+
+                // write col blocks
+                var colBlocks = [<%=((String) request.getAttribute("colBlocks"))%>];
+                table += "<tr><td></td>";
+                for (var j = 0; j < cols; j++)
+                {
+                    table += '<td style="vertical-align: top; text-align: center;">';
+                    for (var i = 0; i < colBlocks[j].length; i++)
+                    {
+                        table += colBlocks[j][i] + "<br />";
+                    }
+                    table += '</td>';
+                }
+                table += "</tr>";
+
                 $("<table class='col-lg-2'>" + table + "</table>").appendTo($("#Board"));
 
+                $("#Board").on('click', '.btn', function () {
+                    alert($(this).data('row') + ", " + $(this).data('col'));
+                });
             }
 
-
-            function colBlockAsString(block)
-            {
-                var vv = block;
-                if (vv.length > 1)
-                {
-                    var vv = block.split(",");
-                    return vv[0] + "<br>" + vv[1];
-                }
-                return vv[0];
-            }
-            function rowBlockAsString(block)
-            {
-                var vv = block;
-                if (vv.length > 1)
-                {
-                    var vv = block.split(",");
-                    return vv[0] + " " + vv[1];
-                }
-                return vv[0];
-            }
-
+            $(function () {
+                printBoard();
+                $("#makeAMoveButton").click(function () {
+                    inAMove = true;
+                    $(this).addClass("active");
+                    $("#moveButtons").fadeIn();
+                });
+            });
 
 
         </script>
@@ -121,34 +123,26 @@
         </div>
         <div class="col-lg-9">
             <h2 class="text-primary">Commands</h2>
-            <a class="btn btn-info">Make a Move</a>
+            <a class="btn btn-info" id="makeAMoveButton">Make a Move</a>
             <a class="btn btn-info">Undo a move</a>
-            <a class="btn btn-primary">Client Bla bla</a>
-            '
-
+            <a class="btn btn-primary">Show Statistics</a>
             <a class="btn btn-info">Moves History</a>
             <a class="btn btn-success">Done</a>
-            <a class="btn btn-danger">Leave Game</a>
+            <a class="btn btn-danger" href="LeaveGameController?game_id=<%= request.getParameter("id")%>">Leave Game</a>
+
+            <div id="moveButtons" style="display:none" class="row">
+                <label class="col-lg-1"><input type="radio" name="moveType" value="blacked">Blacked</label> 
+                <label class="col-lg-1"><input type="radio" name="moveType" value="empty">Empty</label>
+                <label class="col-lg-1"><input type="radio" name="moveType" value="undefined">Undefined</label>
+            </div>
 
             <div class="row">
-                <h2 class="col-xs-3">Board</h2>
-                <h2 class="col-xs-3">Moves:  <%= ((IGameManager) request.getAttribute("currentGame")).getCurrentGameRound()%> /
+                <h2 class="col-lg-3">Board</h2>
+                <h2 class="col-lg-3">Moves:  <%= ((IGameManager) request.getAttribute("currentGame")).getCurrentGameRound()%> /
                     <%= ((IGameManager) request.getAttribute("currentGame")).getGameRounds()%></h2>
             </div>
-            <!--                     <div class="row">
-                                <h2 class='text-success'>Board </h2>  <h2 class='text-primary' >      Moves:  </h2>
-                                 </div>-->
-
-            <div id ="Board">
-
-                <script>
-                    printBoard();
-                </script>
-
+            <div id="Board" class="row">
             </div>
-
-
-
         </div>
     </body>
 </html>
