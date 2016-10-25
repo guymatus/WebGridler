@@ -33,7 +33,13 @@ public class Engine implements IGameManager {
     int m_activePlayers = 0;
     int boardCols;
     int boardRows;
-
+    Board m_board;
+    
+    @Override 
+    public Board getBoard(){
+        return m_board;
+    }
+    @Override
     public int getBoardCols() {
         return boardCols;
     }
@@ -41,7 +47,7 @@ public class Engine implements IGameManager {
     public void setBoardCols(int boardCols) {
         this.boardCols = boardCols;
     }
-
+    @Override
     public int getBoardRows() {
         return boardRows;
     }
@@ -71,7 +77,7 @@ public class Engine implements IGameManager {
     public String getOrganizer() {
         return m_organizer;
     }
-
+    @Override
     public void setOrganizer(String organizer) {
         this.m_organizer = organizer;
     }
@@ -249,11 +255,12 @@ public class Engine implements IGameManager {
 
     @Override
     public void addPlayer(Player player) {
-
+         
         if (!(m_lstPlayers.contains(player))) {
-            player.setBoard(new Board(getBoardRows(), getBoardCols()));
+        
             m_lstPlayers.add(player);
         }
+        
         m_activePlayers++;
     }
 
@@ -361,10 +368,10 @@ public class Engine implements IGameManager {
             //Todo: check that every player has a unique id.
             setGameRounds(Integer.parseInt(gameDescriptor.getDynamicMultiPlayers().getTotalmoves()));
             setPlayerCount(gameDescriptor.getDynamicMultiPlayers().getTotalPlayers());
-            setGameTitle(gameDescriptor.getDynamicMultiPlayers().getGametitle());
-            
+            setGameTitle(gameDescriptor.getDynamicMultiPlayers().getGametitle());                      
             setBoardCols(def.getColumns().intValue());
             setBoardRows(def.getRows().intValue());
+            m_board= new Board(def.getRows().intValue(),def.getColumns().intValue());
 //            for (XMLFiles.Player player : players.getPlayer()) {
 //                String name = player.getName();
 //                int id = player.getId().intValue();
@@ -427,14 +434,15 @@ public class Engine implements IGameManager {
             validBoardSize = false;
 
         }
-        for (int i = 0;
-                i < m_lstPlayers.size();
-                i++) {
-            Player player = m_lstPlayers.get(i);
-            player.getBoard().setRowSlices(rowSlices);
-            player.getBoard().setColSlices(colSlices);
-        }
-
+//        for (int i = 0;
+//                i < m_lstPlayers.size();
+//                i++) {
+//            Player player = m_lstPlayers.get(i);
+//            player.getBoard().setRowSlices(rowSlices);
+//            player.getBoard().setColSlices(colSlices);
+//        }
+           m_board.setRowSlices(rowSlices);
+           m_board.setColSlices(colSlices);
         validateXML(gameDescriptor, validPlayerId, tooManyBlocksForRow, tooManyBlocksForCol, validSolution, validBoardSize);
     }
 

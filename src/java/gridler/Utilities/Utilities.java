@@ -36,7 +36,11 @@ public class Utilities {
 
         return usersList;
     }
-
+    public static String getRowBlock(int index)
+    {
+        String res="5";
+        return res;
+    }
     public static void loadXml(String filePath) throws Exception {
         m_gameManager = new Engine();
 

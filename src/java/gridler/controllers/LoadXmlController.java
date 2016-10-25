@@ -33,7 +33,8 @@ public class LoadXmlController extends HttpServlet {
             String name = (String) request.getSession().getAttribute("username");
             String type = (String) request.getSession().getAttribute("userType");
             gameManager.loadXml(filePart.getInputStream());
-            // todo: set organizer
+            gameManager.setOrganizer(name);
+           
         } catch (Exception ex) {
             ex.printStackTrace(response.getWriter());
             return;

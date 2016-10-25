@@ -49,7 +49,7 @@
                                 $("<tr class='clickable-row' data-id='" + index + "'><td>" + value.m_gameTitle + "</td><td>" + value.m_organizer + "</td><td>" + value.m_activePlayers + "/"
                                         + value.m_playerCount + "</td><td>"
                                         + value.m_numberOfRounds + "</td><td>" +
-                                        value.m_lstPlayers[0].m_board.rowLength + "x" + value.m_lstPlayers[0].m_board.colLength + "</td></tr>").appendTo($("#gamestable"));
+                                        value.boardCols + "x" + value.boardRows + "</td></tr>").appendTo($("#gamestable"));
                             });
 
                         });
@@ -88,8 +88,11 @@
                 setInterval(updateStatus, 2000);
                 setupOfferNewGameButton();
 
-                $('#gamestable').on('click', '.clickable-row', function () {
+ 
+        
+        $('#gamestable').on('click', '.clickable-row', function () {
                     var gameID = $(this).data('id');
+                    
                     var addPlayerToGameData = {
                         gameIndex: gameID,
                         playerName: '<%= request.getSession().getAttribute("username")%>'

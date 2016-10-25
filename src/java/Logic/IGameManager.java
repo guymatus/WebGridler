@@ -53,4 +53,12 @@ public interface IGameManager {
     public void setGameTitle(String gameTitle);
 
     public String getWinnerNameAndDetails();
+    
+    public void setOrganizer(String organizer);
+    
+     public int getBoardCols();
+     
+      public int getBoardRows();
+      public Board getBoard();
+      
 }
