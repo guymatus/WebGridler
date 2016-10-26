@@ -14,11 +14,10 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author Amit Elbaz
+ * @author Guy Matus
  */
 public class Utilities {
 
@@ -36,11 +35,12 @@ public class Utilities {
 
         return usersList;
     }
-    public static String getRowBlock(int index)
-    {
-        String res="5";
+
+    public static String getRowBlock(int index) {
+        String res = "5";
         return res;
     }
+
     public static void loadXml(String filePath) throws Exception {
         m_gameManager = new Engine();
 

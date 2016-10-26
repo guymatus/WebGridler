@@ -257,11 +257,14 @@ public class Engine implements IGameManager {
     public void addPlayer(Player player) {
          
         if (!(m_lstPlayers.contains(player))) {
-        
             m_lstPlayers.add(player);
         }
         
         m_activePlayers++;
+        // if this is the only player in the game, this is his turn.
+        if (m_activePlayers == 1) {
+            m_lstPlayers.get(0).setIsTurn(true);
+        }
     }
 
     @Override
