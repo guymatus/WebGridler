@@ -11,7 +11,8 @@ package Logic;
  */
 public enum UserSquareStatus {
     UNDEFINED, BLACKED, EMPTY;
-     public static UserSquareStatus getRandom() {
+
+    public static UserSquareStatus getRandom() {
         return values()[(int) (Math.random() * values().length)];
-}
+    }
 }

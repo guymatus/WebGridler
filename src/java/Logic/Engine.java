@@ -267,6 +267,7 @@ public class Engine implements IGameManager {
     @Override
     public void removePlayer(Player player) {
         m_lstPlayers.remove(player);
+        m_activePlayers--;
     }
 
     @Override
