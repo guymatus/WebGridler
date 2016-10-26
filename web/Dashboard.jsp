@@ -88,11 +88,11 @@
                 setInterval(updateStatus, 2000);
                 setupOfferNewGameButton();
 
-
-
-                $('#gamestable').on('click', '.clickable-row', function () {
+ 
+        
+        $('#gamestable').on('click', '.clickable-row', function () {
                     var gameID = $(this).data('id');
-
+                    
                     var addPlayerToGameData = {
                         gameIndex: gameID,
                         playerName: '<%= request.getSession().getAttribute("username")%>'
@@ -106,6 +106,7 @@
                     });
                 });
             });
+
         </script>
     </head>
     <body>
