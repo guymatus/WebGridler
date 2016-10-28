@@ -175,6 +175,15 @@
                         }
                     });
                 });
+
+                $("#movesHistoryButton").click(function () {
+                    var data = {
+                        game_id: <%= request.getParameter("id")%>,
+                    }
+                    $.get("HistoryController", data, function (ret) {
+                        alert(ret);
+                    });
+                });
             });
 
 
@@ -219,7 +228,7 @@
                 <button class="btn btn-info" id="makeAMoveButton">Make a Move</button>
                 <button class="btn btn-info" id="undoButton">Undo a move</button>
                 <button class="btn btn-primary">Show Statistics</button>
-                <button class="btn btn-info">Moves History</button>
+                <button class="btn btn-info" id="movesHistoryButton">Moves History</button>
                 <button class="btn btn-success" id="doneButton" disabled>Done & Pass Turn</button>
                 <a class="btn btn-danger" href="LeaveGameController?game_id=<%= request.getParameter("id")%>">Leave Game</a>
             </div>

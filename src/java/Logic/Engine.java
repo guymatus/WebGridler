@@ -6,8 +6,6 @@
 package Logic;
 
 import XMLFiles.GameDescriptor;
-import XMLFiles.Players;
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 
