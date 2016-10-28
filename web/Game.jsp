@@ -30,6 +30,16 @@
                 border-color: red;
                 background-color: gainsboro;
             }
+            .square {
+                width: 32px;
+                height: 32px;
+            }
+            .square-blacked {
+                background-color:black;
+            }
+            .square-empty {
+                background-color: white;
+            }
         </style>
 
         <script>
@@ -56,62 +66,43 @@
                     }
                 }
             }
-            function printBoard() {
-                var table = '';
-                var rows = <%=((IGameManager) request.getAttribute("currentGame")).getBoardRows()%>
-                var cols = <%=((IGameManager) request.getAttribute("currentGame")).getBoardCols()%>
-
-                table += "<tr><td>";
-                for (var c = 1; c <= cols; c++)
-                {
-                    table += "<td>" + c + "</td>";
+            function getBoardFromServer() {
+                $("#Board").empty();
+                var data = {
+                    game_id: <%= request.getParameter("id")%>
                 }
-                table += "</tr></td>";
+                $.post("UpdateBoardController", data, function (ret) {
 
-                // write row blocks
-                for (var r = 1; r <= rows; r++)
-                {
-                    table += "<tr><td>" + r + "</td>";
-                    for (var j = 0; j < cols; j++)
+                    if (ret !== "error")
                     {
-                        table += ' <td><a class="btn btn-default" style="width: 32px; height: 32px;" data-col="' + j + '" data-row="' + (r - 1) + '"></a></td> '
-                    }
-                    var rowBlocks = [<%=((String) request.getAttribute("rowBlocks"))%>];
-                    table += "<td>" + rowBlocks[r - 1] + "</td></tr>";
-                }
-
-                // write col blocks
-                var colBlocks = [<%=((String) request.getAttribute("colBlocks"))%>];
-                table += "<tr><td></td>";
-                for (var j = 0; j < cols; j++)
-                {
-                    table += '<td style="vertical-align: top; text-align: center;">';
-                    for (var i = 0; i < colBlocks[j].length; i++)
+                        $(ret).appendTo($("#Board"));
+                    } else
                     {
-                        table += colBlocks[j][i] + "<br />";
+                        alert("error");
                     }
-                    table += '</td>';
-                }
-                table += "</tr>";
+                });
+            }
 
-                $("<table class='col-lg-2'>" + table + "</table>").appendTo($("#Board"));
+            $(function () {
+                getBoardFromServer();
 
                 $("#Board").on('click', '.btn', function () {
-                    if ($(this).hasClass('btn-default'))
+
+                    if (!$(this).hasClass('btn-clicked'))
                     {
-                        $(this).removeClass('btn btn-default');
-                        $(this).addClass('btn btn-clicked');
+                        //$(this).removeClass('btn btn-default');
+                        $(this).addClass('btn-clicked');
+
                         $("#moveButtons :radio").prop("disabled", false);
                         moveList[moveList.length] = [$(this).data('row'), $(this).data('col')];
-                    } else if ($(this).hasClass('btn-clicked'))
+                    } else
                     {
-                        $(this).removeClass('btn btn-clicked');
-                        $(this).addClass('btn btn-default');
+                        $(this).removeClass('btn-clicked');
+                        //$(this).addClass('btn btn-default');
                         var valToRemove = [$(this).data('row'), $(this).data('col')];
                         var indexToRemove = findIndexToRemove(valToRemove);
                         moveList.splice(indexToRemove, 1);
                     }
-                    $("#moveButtons :radio").prop("disabled", false);
                     updateButtons();
                 });
 
@@ -119,19 +110,19 @@
                     moveState = $(this).data('state');
                     $("#doneButton").prop("disabled", false);
                 });
-            }
-
-            $(function () {
-                printBoard();
 
                 $("#makeAMoveButton").click(function () {
                     moveList.splice(0, moveList.length);
                     // uncheck everything in the board
-                    $("#Board .btn").removeClass('btn-clicked').addClass('btn-default');
+                    //$("#Board .btn").removeClass('btn-clicked').addClass('btn-default');
+                    $("#Board .btn").removeClass('btn-clicked');
                     if (!inAMove) {
                         inAMove = true;
                         $(this).addClass("active");
                         $("#moveButtons").fadeIn();
+                        updateButtons();
+                        $("#doneButton").prop("disabled", false);
+
                     } else {
                         inAMove = false;
                         $(this).removeClass("active");
@@ -147,6 +138,7 @@
                     }
                     $.post("MoveController", data, function (ret) {
                         if (ret === "success") {
+                            $("#makeAMoveButton").removeClass("active");
                             $("#moveButtons").hide();
                             $("#commands .btn").prop("disabled", true);
                             $("#Board .btn").prop("disabled", true);
@@ -161,14 +153,28 @@
                                         $("#commands .btn").prop("disabled", false);
                                         $("#Board .btn").prop("disabled", false);
                                         $("#waitUntilYourTurn").hide();
+                                        getBoardFromServer();
                                     }
                                 });
-                            }, 2000)
+                            }, 2000);
                         } else {
                             alert("could not execute move. error = " + ret);
                         }
                     });
-                })
+                });
+
+                $("#undoButton").click(function () {
+                    var data = {
+                        game_id: <%= request.getParameter("id")%>,
+                    }
+                    $.post("UndoController", data, function (ret) {
+                        if (ret === "success") {
+                            getBoardFromServer();
+                        } else {
+                            alert(ret);
+                        }
+                    });
+                });
             });
 
 
@@ -211,7 +217,7 @@
             <h2 class="text-primary">Commands</h2>
             <div id="commands">
                 <button class="btn btn-info" id="makeAMoveButton">Make a Move</button>
-                <button class="btn btn-info">Undo a move</button>
+                <button class="btn btn-info" id="undoButton">Undo a move</button>
                 <button class="btn btn-primary">Show Statistics</button>
                 <button class="btn btn-info">Moves History</button>
                 <button class="btn btn-success" id="doneButton" disabled>Done & Pass Turn</button>

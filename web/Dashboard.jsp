@@ -29,6 +29,7 @@
         <!-- jquery file upload -->
         <link href="css/jquery.fileupload.css" rel="stylesheet" type="text/css"/>
         <script>
+              var roomsTolock=[];
             function updateStatus()
             {
                 $.getJSON("StatusController",
@@ -50,6 +51,10 @@
                                         + value.m_playerCount + "</td><td>"
                                         + value.m_numberOfRounds + "</td><td>" +
                                         value.boardCols + "x" + value.boardRows + "</td></tr>").appendTo($("#gamestable"));
+                                  if(value.m_activePlayers==value.m_playerCount)
+                                {
+                                    roomsTolock[index]=true;
+                                }
                             });
 
                         });
@@ -88,11 +93,14 @@
                 setInterval(updateStatus, 2000);
                 setupOfferNewGameButton();
 
- 
-        
-        $('#gamestable').on('click', '.clickable-row', function () {
+
+
+                $('#gamestable').on('click', '.clickable-row', function () {
                     var gameID = $(this).data('id');
-                    
+                      if(roomsTolock[gameID]===true)
+                       {
+                          return;
+                       }
                     var addPlayerToGameData = {
                         gameIndex: gameID,
                         playerName: '<%= request.getSession().getAttribute("username")%>'
@@ -106,7 +114,6 @@
                     });
                 });
             });
-
         </script>
     </head>
     <body>

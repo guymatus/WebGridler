@@ -33,16 +33,7 @@ public class LeaveGameController extends HttpServlet {
 
         int gameId = Integer.parseInt(req.getParameter("game_id"));
         IGameManager runningGame = Utilities.getRunningGamesList(getServletContext()).get(gameId);
-        Player playerToLeave = null;
-        for (Player player : runningGame.getLstPlayers()) {
-            if (player.getName().equals(req.getSession().getAttribute("username"))) {
-                playerToLeave = player;
-                break;
-            }
-        }
-        if (playerToLeave == null) {
-            throw new ServletException("You can't leave a game you are not in.");
-        }
+        Player playerToLeave = Utilities.getPlayingPlayer(runningGame, (String) req.getSession().getAttribute("username"));
 
         runningGame.removePlayer(playerToLeave);
 

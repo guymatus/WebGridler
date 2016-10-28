@@ -65,4 +65,18 @@ public class Utilities {
             throw new ServletException("user type must be human or computer. user type given: " + userType);
         }
     }
+
+    public static Player getPlayingPlayer(IGameManager runningGame, String username) throws ServletException {
+        Player chosenPlayer = null;
+        for (Player player : runningGame.getLstPlayers()) {
+            if (player.getName().equals(username)) {
+                chosenPlayer = player;
+                break;
+            }
+        }
+        if (chosenPlayer == null) {
+            throw new ServletException("Didn't find playing player in running game");
+        }
+        return chosenPlayer;
+    }
 }

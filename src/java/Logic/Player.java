@@ -34,7 +34,9 @@ public class Player {
     }
 
     public void removeLastComment() {
-        this.m_CommentsArr.remove(m_CommentsArr.size() - 1);
+        if (this.m_CommentsArr.size() > 0) {
+            this.m_CommentsArr.remove(m_CommentsArr.size() - 1);
+        }
     }
 
     public void setComment(String Comment) {

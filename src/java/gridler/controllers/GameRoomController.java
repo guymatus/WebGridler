@@ -5,6 +5,7 @@
  */
 package gridler.controllers;
 
+import Logic.Board;
 import Logic.IGameManager;
 import Logic.Slice;
 import gridler.Utilities.Utilities;
@@ -33,6 +34,7 @@ public class GameRoomController extends HttpServlet {
         req.setAttribute("currentGame", currentGame);
         Slice[] rowslices = currentGame.getBoard().getRowSlices();
         Slice[] colslices = currentGame.getBoard().getColSlices();
+        Board board = currentGame.getBoard();
         String rowBlocks = "";
         String colBlocks = "";
         for (int i = 0; i < currentGame.getBoardRows(); i++) {
@@ -43,6 +45,7 @@ public class GameRoomController extends HttpServlet {
         }
         req.setAttribute("rowBlocks", rowBlocks);
         req.setAttribute("colBlocks", colBlocks);
+        req.setAttribute("board", board);
         getServletContext().getRequestDispatcher("/Game.jsp").forward(req, resp);
     }
 
