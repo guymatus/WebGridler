@@ -35,6 +35,7 @@ public class DashboardController extends HttpServlet {
             response.sendRedirect("Login.jsp");
             return;
         }
+        request.setAttribute("username", request.getSession().getAttribute("username"));
         getServletContext().getRequestDispatcher("/Dashboard.jsp").forward(request, response);
     }
 

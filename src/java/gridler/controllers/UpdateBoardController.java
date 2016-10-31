@@ -10,7 +10,6 @@ import Logic.IGameManager;
 import Logic.Player;
 import Logic.Slice;
 import Logic.Square;
-import Logic.UserSquareStatus;
 import gridler.Utilities.Utilities;
 import java.io.IOException;
 import javax.servlet.ServletException;

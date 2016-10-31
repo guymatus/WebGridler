@@ -29,7 +29,7 @@
         <!-- jquery file upload -->
         <link href="css/jquery.fileupload.css" rel="stylesheet" type="text/css"/>
         <script>
-              var roomsTolock=[];
+            var roomsTolock = [];
             function updateStatus()
             {
                 $.getJSON("StatusController",
@@ -51,9 +51,9 @@
                                         + value.m_playerCount + "</td><td>"
                                         + value.m_numberOfRounds + "</td><td>" +
                                         value.boardCols + "x" + value.boardRows + "</td></tr>").appendTo($("#gamestable"));
-                                  if(value.m_activePlayers==value.m_playerCount)
+                                if (value.m_activePlayers == value.m_playerCount)
                                 {
-                                    roomsTolock[index]=true;
+                                    roomsTolock[index] = true;
                                 }
                             });
 
@@ -61,7 +61,6 @@
             }
             function setupOfferNewGameButton()
             {
-
                 $("#offerNewGameButton").change(function () {
                     var file_data = $("#offerNewGameButton").prop('files')[0];
                     var form_data = new FormData();
@@ -92,15 +91,15 @@
             $(function () {
                 setInterval(updateStatus, 2000);
                 setupOfferNewGameButton();
-
-
+                var PlayerName = "<label>" + '<%= request.getSession().getAttribute("username")%>' + "</label>";
+                $("#playerName").append("hello " + PlayerName + ", welcome to gridler");
 
                 $('#gamestable').on('click', '.clickable-row', function () {
                     var gameID = $(this).data('id');
-                      if(roomsTolock[gameID]===true)
-                       {
-                          return;
-                       }
+                    if (roomsTolock[gameID] === true)
+                    {
+                        return;
+                    }
                     var addPlayerToGameData = {
                         gameIndex: gameID,
                         playerName: '<%= request.getSession().getAttribute("username")%>'
@@ -125,6 +124,9 @@
             <h2 class="text-primary">Logged in users:</h2>
             <a href="LogoutController" class="btn btn-warning">Logout</a>
             <br />
+            <div id="playerName">
+
+            </div>
             <table class="table table-hover">
                 <thead>
                     <tr>

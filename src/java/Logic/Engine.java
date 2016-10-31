@@ -53,18 +53,18 @@ public class Engine implements IGameManager {
     public void setBoardRows(int boardRows) {
         this.boardRows = boardRows;
     }
-
+    
     public int getActivePlayers() {
         return m_activePlayers;
     }
 
     public void setActivePlayers(int activePlayers) {
-        if (activePlayers < Integer.parseInt(getPlayerCount())) {
+        if (activePlayers < Integer.parseInt(getPlayersCount())) {
             m_activePlayers++;
         }
     }
-
-    public String getPlayerCount() {
+    @Override
+    public String getPlayersCount() {
         return m_playerCount;
     }
 
@@ -392,9 +392,8 @@ public class Engine implements IGameManager {
                 validSolution = false;
             } else {
 
-                for (int i = 0; i < m_lstPlayers.size(); i++) {
-                    Player player = m_lstPlayers.get(i);
-                    final Square[][] squares = player.getBoard().getSquares();
+                
+                    final Square[][] squares =m_board.getSquares();
                     Square square = squares[row][col];
                     if (square.isIsBlack() == true) {
                         validSolution = false;
@@ -402,7 +401,7 @@ public class Engine implements IGameManager {
                     } else {
                         square.setIsBlack(true);
                     }
-                }
+               
             }
 
         }

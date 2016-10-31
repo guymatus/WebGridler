@@ -39,7 +39,7 @@ public class MoveController extends HttpServlet {
             IGameManager runningGame = Utilities.getRunningGamesList(getServletContext()).get(gameId);
             String moveList = req.getParameter("moveList");
             String moveState = req.getParameter("moveState");
-            runningGame.executeMove(translateMovesArray(moveList), runningGame.getBoard(), translateMoveState(moveState));
+            runningGame.executeMove(translateMovesArray(moveList), runningGame.getPlayingPlayer().getBoard(), translateMoveState(moveState));
             runningGame.passTurn();
 
             resp.getWriter().print("success");

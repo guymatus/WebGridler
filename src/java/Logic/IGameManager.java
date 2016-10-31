@@ -30,8 +30,8 @@ public interface IGameManager {
 
     public void passTurn();
 
+    public String getPlayersCount();
     int playersCount();
-
     public void loadXml(InputStream stream) throws Exception;
 
     int undoMove();
@@ -60,5 +60,5 @@ public interface IGameManager {
      
       public int getBoardRows();
       public Board getBoard();
-      
+ 
 }

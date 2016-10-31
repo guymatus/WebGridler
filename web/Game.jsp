@@ -48,6 +48,10 @@
             var inAMove = false;
             var moveList = [];
             var moveState;
+            var IsPlayable = false;
+            var numberOfPlayers = 0;
+            var startGame = false;
+            var currentPlayerUsername = "";
 
             function updateButtons() {
                 if (moveList.length === 0)
@@ -55,6 +59,7 @@
                     $("#moveButtons :radio").prop("disabled", true).prop("checked", false);
                     $("#doneButton").prop("disabled", true);
                 }
+
             }
 
             function findIndexToRemove(val) {
@@ -69,7 +74,8 @@
             function getBoardFromServer() {
                 $("#Board").empty();
                 var data = {
-                    game_id: <%= request.getParameter("id")%>
+                    game_id: <%= request.getParameter("id")%>,
+                    username: "<%= request.getSession().getAttribute("username")%>"
                 }
                 $.post("UpdateBoardController", data, function (ret) {
 
@@ -83,8 +89,72 @@
                 });
             }
 
+
+            function updateStatus() {
+                $.get("UpdateGameRoomUsersList", {game_id: <%= request.getParameter("id")%>},
+                        function (data) {
+                            // users table update
+                            data = data.split(",");
+                            $("#MyName").empty();
+                            $("<h1>" + '<%= request.getSession().getAttribute("username")%>' + "</h1>").appendTo("#MyName");
+                            for (var i = 0; i < data.length; i++)
+                            {
+                                data[i] = data[i].replace("{", "");
+                                data[i] = data[i].replace("}", "");
+                                data[i] = data[i].split(",");
+                            }
+                            for (var j = 0; j < data.length; j++)
+                            {
+
+                                data[j][0] = data[j][0].split("=");
+                            }
+
+                            if (data.length === (<%=(Integer.parseInt(((IGameManager) request.getAttribute("currentGame")).getPlayersCount()))%> * 2))
+                            {
+                                $("#waitForStart").hide();
+
+                                checkIfPlayersTurn();
+
+
+                            } else
+                            {
+                                waitForGameStart();
+                            }
+                            $("#userstable").empty();
+                            for (var i = 0; i < data.length; i++)
+                            {
+                                var users = data;
+                                if (users[i][0][1] === "Computer") {
+                                    alert("goldenEgg");
+                                } else if (users[i][0][1] == "Human") {
+                                    $("<tr><td>" + (i + 1) + "</td><td>" + users[i][0][0] + "</td><td>" + '<img src="images/humanIcon.png" />' + "</td><td>" + users[i + ((data.length) / 2)][0][1] + "</td></tr>").appendTo($("#userstable"));
+                                }
+
+                            }
+
+                        });
+                $.get("CurrentTurnController", {game_id: <%= request.getParameter("id")%>}, function (data) {
+                    if (data === "<%= request.getSession().getAttribute("username")%>") {
+                        // this is our turn now                                     
+                        $("#commands .btn").prop("disabled", false);
+                        $("#Board .btn").prop("disabled", false);
+                        $("#waitUntilYourTurn").hide();
+                        if (data !== currentPlayerUsername) {
+                            getBoardFromServer();
+                        }
+                    } else
+                    {
+                        $("#waitUntilYourTurn").show();
+                        $("#commands .btn").prop("disabled", true);
+                        $("#Board .btn").prop("disabled", true);
+                    }
+                    currentPlayerUsername = data;
+                });
+            }
+
             $(function () {
                 getBoardFromServer();
+                setInterval(updateStatus, 2000);
 
                 $("#Board").on('click', '.btn', function () {
 
@@ -92,7 +162,6 @@
                     {
                         //$(this).removeClass('btn btn-default');
                         $(this).addClass('btn-clicked');
-
                         $("#moveButtons :radio").prop("disabled", false);
                         moveList[moveList.length] = [$(this).data('row'), $(this).data('col')];
                     } else
@@ -105,12 +174,10 @@
                     }
                     updateButtons();
                 });
-
                 $("#moveButtons :radio").on('change', function () {
                     moveState = $(this).data('state');
                     $("#doneButton").prop("disabled", false);
                 });
-
                 $("#makeAMoveButton").click(function () {
                     moveList.splice(0, moveList.length);
                     // uncheck everything in the board
@@ -122,14 +189,12 @@
                         $("#moveButtons").fadeIn();
                         updateButtons();
                         $("#doneButton").prop("disabled", false);
-
                     } else {
                         inAMove = false;
                         $(this).removeClass("active");
                         $("#moveButtons").fadeOut();
                     }
                 });
-
                 $("#doneButton").click(function () {
                     var data = {
                         game_id: <%= request.getParameter("id")%>,
@@ -143,26 +208,12 @@
                             $("#commands .btn").prop("disabled", true);
                             $("#Board .btn").prop("disabled", true);
                             $("#waitUntilYourTurn").show();
-
-                            // we check if this is our turn every interval
-                            var refreshIntervalId = setInterval(function () {
-                                $.get("CurrentTurnController", {game_id: <%= request.getParameter("id")%>}, function (currentPlayerName) {
-                                    if (currentPlayerName === "<%= request.getSession().getAttribute("username")%>") {
-                                        // this is our turn now
-                                        clearInterval(refreshIntervalId);
-                                        $("#commands .btn").prop("disabled", false);
-                                        $("#Board .btn").prop("disabled", false);
-                                        $("#waitUntilYourTurn").hide();
-                                        getBoardFromServer();
-                                    }
-                                });
-                            }, 2000);
+                            getBoardFromServer();
                         } else {
                             alert("could not execute move. error = " + ret);
                         }
                     });
                 });
-
                 $("#undoButton").click(function () {
                     var data = {
                         game_id: <%= request.getParameter("id")%>,
@@ -174,23 +225,78 @@
                             alert(ret);
                         }
                     });
+                    updateMovesHistory();
                 });
-
                 $("#movesHistoryButton").click(function () {
-                    var data = {
-                        game_id: <%= request.getParameter("id")%>,
-                    }
-                    $.get("HistoryController", data, function (ret) {
-                        alert(ret);
-                    });
+                    updateMovesHistory();
                 });
             });
+            function waitForGameStart() {
+                var waitForStart = "<h3>" + 'Wait while room gets full to start Game' + "</h3>";
+                $("#waitForStart").empty();
+                $(waitForStart).appendTo($("#waitForStart"));
+                if (startGame === true)
+                {
+                    $("#waitForStart").hide();
+                    return;
+                }
 
+
+                if (!startGame)
+                {
+                    if (<%=(Integer.parseInt(((IGameManager) request.getAttribute("currentGame")).getPlayersCount()))%> === <%=((IGameManager) request.getAttribute("currentGame")).getLstPlayers().size()%>)
+                    {
+                        startGame = true;
+                        $("#waitForStart").hide();
+                        checkIfPlayersTurn();
+
+                        return;
+                    } else
+                    {
+                        $("#waitForStart").show();
+                        // $("#Board :btn").prop("disabled", true);
+                        $("#commands :button").prop("disabled", true);
+                    }
+
+                }
+            }
+            function checkIfPlayersTurn() {
+                $.get("CurrentTurnController", {game_id: <%= request.getParameter("id")%>}, function (data) {
+                    $("#currentPlayer").empty();
+                    $("<h3 class='text-info'> player turn: " + data + "</h3>").appendTo($("#currentPlayer"));
+                    $("#currentPlayer").show();
+                    if (data === "<%= request.getSession().getAttribute("username")%>") {
+                        // this is our turn now
+                        $("#commands .btn").prop("disabled", false);
+                        $("#Board .btn").prop("disabled", false);
+                        $("#waitUntilYourTurn").hide();
+                        $("#waitForStart").hide();
+                        // getBoardFromServer();
+                    } else
+                    {
+                        $("#waitUntilYourTurn").show();
+                        $("#commands .btn").prop("disabled", false);
+                        $("#Board .btn").prop("disabled", false);
+
+                    }
+                });
+            }
+            function updateMovesHistory() {
+                var data = {
+                    game_id: <%= request.getParameter("id")%>,
+                }
+                $.get("HistoryController", data, function (ret) {
+                    $("#MovesHistory").empty();
+                    var history = "<label>" + "Moves History: " + ret + "</label>";
+                    $(history).appendTo($("#MovesHistory"));
+                });
+            }
 
         </script>
     </head>
 
     <body>
+
         <h1 class="text-success">Game: <%= ((IGameManager) request.getAttribute("currentGame")).getGameTitle()%></h1>
         <div class="col-lg-3">
             <h2 class="text-primary">Players</h2>
@@ -207,7 +313,11 @@
                 <tbody id="userstable">
                     <% for (Player player : ((IGameManager) request.getAttribute("currentGame")).getLstPlayers()) {%>
                     <tr>
-                        <td>0</td>
+
+
+                        <td id="playerCount"> </td>
+
+
                         <td><%= player.getName()%></td>
                         <td>
                             <% if (player.isHuman()) { %>
@@ -221,6 +331,7 @@
                     <% }%>
                 </tbody>
             </table>
+
         </div>
         <div class="col-lg-9">
             <h2 class="text-primary">Commands</h2>
@@ -232,10 +343,11 @@
                 <button class="btn btn-success" id="doneButton" disabled>Done & Pass Turn</button>
                 <a class="btn btn-danger" href="LeaveGameController?game_id=<%= request.getParameter("id")%>">Leave Game</a>
             </div>
+            <div id="waitForStart"> </div>
 
             <div id="moveButtons" style="display:none" class="row">
-                <label class="col-lg-1"><input type="radio" name="moveType" value="blacked" data-state="BLACKED" id="blackRadioButton" disabled>Blacked</label> 
-                <label class="col-lg-1"><input type="radio" name="moveType" value="empty" data-state="EMPTY" id="emptyRadioButton" disabled>Empty</label>
+                <label class="col-lg-2"><input type="radio" name="moveType" value="blacked" data-state="BLACKED" id="blackRadioButton" disabled>Blacked</label> 
+                <label class="col-lg-2"><input type="radio" name="moveType" value="empty" data-state="EMPTY" id="emptyRadioButton" disabled>Empty</label>
                 <label><input type="radio" name="moveType" value="undefined" data-state="UNDEFINED" id="undefinedRadioButton" disabled>Undefined</label>
 
                 <div id="guide" style="display: none"><label class="text-info">select squares, choose the new state for them and click done button to submit you move</label></div>
@@ -247,10 +359,17 @@
             </div>
             <div id="waitUntilYourTurn" style="display:none">
                 <h2>Waiting for your turn. please wait patiently.</h2>
-                <h3>Current Player: <span id="currentPlayerName"></span></h3>
+
             </div>
             <div id="Board" class="row">
             </div>
+            <div id="currentPlayer">
+
+            </div>
+            <div id="MyName">
+
+            </div>
         </div>
+
     </body>
 </html>
